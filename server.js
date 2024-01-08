@@ -10,12 +10,16 @@ const wss = new WebSocket.Server({ server })
 
 let usersCount = 0 // Счетчик активных пользователей
 
+// Используем переменную окружения для порта или 3000 по умолчанию
+const PORT = process.env.PORT || 3000
+
 app.get('/', (req, res) => {
 	// Отправляем HTML-страницу с индикатором количества пользователей
 	res.send(`
     <h2>Количество активных пользователей: <span id="usersCount">0</span></h2>
     <script>
-      const ws = new WebSocket('ws://' + location.host);
+      // Используем wss:// если страница загружена через HTTPS
+      const ws = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
       ws.onmessage = function(event) {
         document.getElementById('usersCount').textContent = event.data;
       };
@@ -43,6 +47,6 @@ wss.on('connection', ws => {
 	})
 })
 
-server.listen(3000, () => {
-	console.log('Сервер запущен на http://localhost:3000')
+server.listen(PORT, () => {
+	console.log(`Сервер запущен на http://localhost:${PORT}`)
 })
